@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Lista de produtos{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-md-12">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Lista de produtos</h1>
+            <a href="{% url 'estoque:cria_produto' %}" class="btn btn-success">Adicionar Novo produto</a>
+        </div>
+
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col">Produto</th>
+                        <th scope="col">Und. Medida</th>
+                        <th scope="col">Saldo em estoque</th>      
+                        <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for produto in produtos %}
+                        <tr>
+                            <td>{{ produto.descricao }}</td>
+                            <td>{{ produto.unidade_medida }}</td>
+                            <td>{{ produto.saldo_estoque}}</td>                           
+                            <td class="text-end">
+                                <a href="{% url 'estoque:edita_produto' produto.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="{% url 'estoque:exclui_produto' produto.pk %}" class="btn btn-danger btn-sm">Excluir</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center p-4">Nenhum produto cadastrado.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        </div>
+</div>
+{% endblock content %}

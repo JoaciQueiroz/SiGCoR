@@ -1,0 +1,32 @@
+# Ignorar arquivos e diretórios específicos do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+env/
+venv/
+lib64/
+/bin/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.poetry/
+.env/
+
+# Ignorar arquivos e diretórios do Django
+db.sqlite3
+*.log
+local_settings.py
+media/
+
+# Ignorar diretórios e arquivos de IDEs e editores de código
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Ignorar arquivos do Pyenv
+.python-version
