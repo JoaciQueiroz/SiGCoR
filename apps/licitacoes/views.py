@@ -7,10 +7,10 @@ from django.views.generic import(
     DeleteView
 )
 
-from .models import Modalidade
-from .forms import ModalidadeForm
+from .models import Modalidade, Licitacao
+from .forms import ModalidadeForm, LicitacaoForm
 
-
+# ===================  Views da Modalidade ===============================
 # lista modalidades
 class ModalidadeListView(ListView):
     model = Modalidade
@@ -41,4 +41,31 @@ class ModalidadeDeleteView(DeleteView):
     template_name = 'licitacoes/confirma_exclusao.html'
     success_url = reverse_lazy('licitacoes:lista_modalidades'
 )
+ # ===================  Views da Liciatação ===============================
+ # view de listagem
+class LicitacaoListView(ListView):
+     model = Licitacao 
+     template_name = 'licitacoes/lista_licitacoes.html'
+     context_object_name = 'licitacoes'
+
+# view de criação
+class LicitacaoCreateView(CreateView):
+     model = Licitacao
+     form_class = LicitacaoForm
+     template_name = 'licitacoes/form_licitacao.html'
+     success_url = reverse_lazy('licitacoes:lista_licitacoes')
+
+# view de edição
+class LicitacaoUpdateView(UpdateView):
+     model = Licitacao
+     form_class = LicitacaoForm
+     template_name = 'licitacoes/form_licitacao.html'
+     success_url = reverse_lazy('licitacoes:lista_licitacoes')
+
+# view de exclusão
+class LicitacaoDeleteView(DeleteView):
+     model = Licitacao
+     template_name = 'licitacoes/exclui_licitacao.html'
+     success_url = reverse_lazy('licitacoes:lista_licitacoes')
+    
 # Create your views here.
