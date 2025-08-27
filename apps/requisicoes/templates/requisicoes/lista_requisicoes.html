@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+{% block title %}Lista de Requisições{% endblock title %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Requisições</h3>
+        <a href="{% url 'requisicoes:cria_requisicao' %}" class="btn btn-success">Nova Requisição</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Nº/Ano</th>
+                    <th>Solicitante</th>
+                    <th>Setor</th>
+                    <th>Tipo</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for requisicao in requisicoes %}
+                <tr>
+                    <td>{{ requisicao.numero_requisicao }}</td>
+                    <td>{{ requisicao.solicitante.get_full_name|default:requisicao.solicitante.username }}</td>
+                    <td>{{ requisicao.setor_solicitante.nome }}</td>
+                    <td>{{ requisicao.get_tipo_display }}</td>
+                    <td>{{ requisicao.data_solicitacao|date:"d/m/Y" }}</td>
+                    <td><span class="badge bg-primary">{{ requisicao.get_status_display }}</span></td>
+                    <td>
+                        <a href="#" class="btn btn-info btn-sm">Detalhes</a>
+                        <a href="{% url 'requisicoes:edita_requisicao' requisicao.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'requisicoes:exclui_requisicao' requisicao.pk %}" class="btn btn-danger btn-sm">Excluir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">Nenhuma requisição encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

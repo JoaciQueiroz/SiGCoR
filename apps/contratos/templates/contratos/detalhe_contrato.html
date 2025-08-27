@@ -1,0 +1,64 @@
+{% extends 'base/base.html' %}
+{% load i18n %} {# Carrega a biblioteca para formatação de números #}
+
+{% block title %}Detalhes do Contrato {{ contrato }}{% endblock title %}
+
+{% block content %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">Detalhes do Contrato: {{ contrato }}</h3>
+        <a href="{% url 'contratos:lista_contratos' %}" class="btn btn-light btn-sm">Voltar para a Lista</a>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <p><strong>Objeto:</strong> {{ contrato.objeto }}</p>
+                <p><strong>Fornecedor:</strong> {{ contrato.fornecedor.razao_social }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><strong>Valor Global:</strong> R$ {{ contrato.valor_global|floatformat:2 }}</p>
+                <p><strong>Assinatura:</strong> {{ contrato.data_assinatura|date:"d/m/Y" }}</p>
+                <p><strong>Fim da Vigência:</strong> {{ contrato.data_vigencia_fim|date:"d/m/Y" }}</p>
+                <p><strong>Fiscal:</strong> {{ contrato.fiscal.get_full_name|default:"Não definido" }}</p>
+                <p><strong>Status:</strong> <span class="badge bg-info">{{ contrato.get_status_display }}</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h4 class="mb-0">Itens do Contrato</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produto do Catálogo</th>
+                        <th>Descrição</th>
+                        <th class="text-end">Quantidade</th>
+                        <th class="text-end">Valor Unitário</th>
+                        <th class="text-end">Valor Total do Item</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in itens_contrato %}
+                    <tr>
+                        <td>{{ item.produto_catalogo.descricao|default:"Serviço/Item Avulso" }}</td>
+                        <td>{{ item.descricao }}</td>
+                        <td class="text-end">{{ item.quantidade|floatformat:2 }}</td>
+                        <td class="text-end">R$ {{ item.valor_unitario|floatformat:2 }}</td>
+                        <td class="text-end">R$ {% widthratio item.quantidade 1 item.valor_unitario as total_item %}{{ total_item|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center p-4">Nenhum item cadastrado para este contrato.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

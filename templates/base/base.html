@@ -24,10 +24,10 @@
                 {% if user.is_authenticated %}
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Contratos</a>
+                            <a class="nav-link" href="{% url 'contratos:lista_contratos' %}">Contratos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Requisições</a>
+                            <a class="nav-link" href="{% url 'requisicoes:lista_requisicoes' %}">Requisições</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

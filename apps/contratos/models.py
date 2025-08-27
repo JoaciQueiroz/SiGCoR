@@ -13,13 +13,14 @@ class Contrato(models.Model):
         ('SUSPENSO', 'Suspenso'),
         ('RESCINDIDO', 'Rescindido'),
     )
-    licitacao_origem = models.ForeignKey(
-        Licitacao,
+    licitacao_origem = models.ForeignKey(Licitacao,
         on_delete=models.PROTECT,
         verbose_name="Licitação de Origem",
         related_name="contratos"
     )
-    fornecedor = models.ForeignKey(Fornecedor, on_delete=models.PROTECT, related_name="contratos")
+    fornecedor = models.ForeignKey(Fornecedor, 
+        on_delete=models.PROTECT, 
+        related_name="contratos")
     fiscal = models.ForeignKey(
         AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

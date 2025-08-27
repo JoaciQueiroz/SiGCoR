@@ -1,0 +1,103 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Cadastro de Contrato{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">{% if object %}Editar Contrato{% else %}Adicionar Novo Contrato{% endif %}</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.licitacao_origem.id_for_label }}" class="form-label">{{ form.licitacao_origem.label }}</label>
+                            {{ form.licitacao_origem }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.fornecedor.id_for_label }}" class="form-label">{{ form.fornecedor.label }}</label>
+                            {{ form.fornecedor }}
+                        </div>
+
+                        <div class="col-md-8">
+                            <label for="{{ form.numero_contrato.id_for_label }}" class="form-label">{{ form.numero_contrato.label }}</label>
+                            <input type="text" name="{{ form.numero_contrato.name }}" id="{{ form.numero_contrato.id_for_label }}" value="{{ form.numero_contrato.value|default:'' }}" class="form-control">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.ano_contrato.id_for_label }}" class="form-label">{{ form.ano_contrato.label }}</label>
+                            <input type="number" name="{{ form.ano_contrato.name }}" id="{{ form.ano_contrato.id_for_label }}" value="{{ form.ano_contrato.value|default:'' }}" class="form-control">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.objeto.id_for_label }}" class="form-label">{{ form.objeto.label }}</label>
+                            {{ form.objeto }}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.valor_global.id_for_label }}" class="form-label">{{ form.valor_global.label }}</label>
+                            <input type="number" name="{{ form.valor_global.name }}" id="{{ form.valor_global.id_for_label }}" value="{{ form.valor_global.value|default:'' }}" class="form-control" step="0.01">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.data_assinatura.id_for_label }}" class="form-label">{{ form.data_assinatura.label }}</label>
+                            <input type="date" name="{{ form.data_assinatura.name }}" id="{{ form.data_assinatura.id_for_label }}" value="{{ form.data_assinatura.value|date:'Y-m-d' }}" class="form-control">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.data_vigencia_fim.id_for_label }}" class="form-label">{{ form.data_vigencia_fim.label }}</label>
+                            <input type="date" name="{{ form.data_vigencia_fim.name }}" id="{{ form.data_vigencia_fim.id_for_label }}" value="{{ form.data_vigencia_fim.value|date:'Y-m-d' }}" class="form-control">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.fiscal.id_for_label }}" class="form-label">{{ form.fiscal.label }}</label>
+                            {{ form.fiscal }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger mt-3">
+                            <strong>Por favor, corrija os erros abaixo:</strong>
+                            </div>
+                    {% endif %}
+                    <hr>
+                    <h4 class="mt-4">Itens do Contrato</h4>
+                    
+                    {{ formset.management_form }} <div id="item-forms-container">
+                        {% for item_form in formset %}
+                            <div class="row item-form g-3 mb-3 border p-3 rounded">
+                                <div class="col-md-4">{{ item_form.produto_catalogo.label_tag }} {{ item_form.produto_catalogo }}</div>
+                                <div class="col-md-8">{{ item_form.descricao.label_tag }} {{ item_form.descricao }}</div>
+                                <div class="col-md-6">{{ item_form.quantidade.label_tag }} {{ item_form.quantidade }}</div>
+                                <div class="col-md-6">{{ item_form.valor_unitario.label_tag }} {{ item_form.valor_unitario }}</div>
+                                {% if item_form.instance.pk %}
+                                    <div class="col-12">{{ item_form.DELETE.label_tag }} {{ item_form.DELETE }} Marcar para excluir</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.errors or formset.errors %}
+                        <div class="alert alert-danger mt-3">
+                            <strong>Por favor, corrija os erros abaixo:</strong>
+                            </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'contratos:lista_contratos' %}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

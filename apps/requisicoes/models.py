@@ -1,6 +1,8 @@
 # apps/requisicoes/models.py
 
 from django.db import models
+from django.utils import timezone
+from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from sigcor.settings import AUTH_USER_MODEL
 from apps.servidores.models import Setor
@@ -33,19 +35,46 @@ class Requisicao(models.Model):
         related_name="requisicoes_solicitadas",
         verbose_name="Solicitante"
     )
+    numero_requisicao = models.CharField(max_length=25, unique=True, editable=False, null=True, blank=True)
     setor_solicitante = models.ForeignKey(Setor, on_delete=models.PROTECT, verbose_name="Setor Solicitante")
-    data_solicitacao = models.DateTimeField(auto_now_add=True, verbose_name="Data da Solicitação")
+    data_solicitacao = models.DateTimeField(auto_now_add=True, verbose_name="Data da Solicitação", editable=False)
     justificativa = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='ABERTA')
-
+      
     class Meta:
         verbose_name = "Requisição"
         verbose_name_plural = "Requisições"
         ordering = ['-data_solicitacao']
+    
+    def __str__(self):   
+        identificador = self.numero_requisicao or f"Requisição #{self.pk or 'Nova'}"
+        nome_setor = self.setor_solicitante.nome if self.setor_solicitante else "Setor não definido"   
+        return f"{identificador} ({self.get_tipo_display()}) - {nome_setor}"
+    
+    def save(self, *args, **kwargs):
+      
+        if not self.pk:
+            with transaction.atomic():
+           
+                hoje = timezone.now()
+                ano = hoje.year
+                mes = hoje.month
 
-    def __str__(self):
-        return f"Requisição #{self.pk} ({self.get_tipo_display()}) - {self.setor_solicitante.nome}"
+                ultima_requisicao = Requisicao.objects.filter(
+                    data_solicitacao__year=ano,
+                    data_solicitacao__month=mes
+                ).order_by('-data_solicitacao').first()
 
+                if ultima_requisicao and ultima_requisicao.numero_requisicao:
+                    numero_antigo = int(ultima_requisicao.numero_requisicao[:-6])
+                    novo_sequencial = numero_antigo + 1
+                else:
+                    novo_sequencial = 1
+                
+                self.numero_requisicao = f"{novo_sequencial}{mes:02d}{ano}"
+
+        super().save(*args, **kwargs)  
+        
     @property
     def valor_total(self):
         """Calcula o valor total da requisição com base no seu tipo."""
