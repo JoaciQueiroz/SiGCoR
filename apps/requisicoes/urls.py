@@ -4,6 +4,7 @@ from .views import (
     RequisicaoCreateView,
     RequisicaoUpdateView,
     RequisicaoDeleteView,
+    RequisicaoDetailView
 )
 
 app_name = 'requisicoes'
@@ -11,6 +12,7 @@ app_name = 'requisicoes'
 urlpatterns = [
     path('', RequisicaoListView.as_view(), name='lista_requisicoes'),
     path('nova/', RequisicaoCreateView.as_view(), name='cria_requisicao'),
+    path('<int:pk>/', RequisicaoDetailView.as_view(), name='detalhe_requisicao'),
     path('<int:pk>/editar/', RequisicaoUpdateView.as_view(), name='edita_requisicao'),
     path('<int:pk>/excluir/', RequisicaoDeleteView.as_view(), name='exclui_requisicao'),
 ]

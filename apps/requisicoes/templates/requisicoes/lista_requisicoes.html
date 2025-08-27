@@ -29,7 +29,7 @@
                     <td>{{ requisicao.data_solicitacao|date:"d/m/Y" }}</td>
                     <td><span class="badge bg-primary">{{ requisicao.get_status_display }}</span></td>
                     <td>
-                        <a href="#" class="btn btn-info btn-sm">Detalhes</a>
+                        <a href="{% url 'requisicoes:detalhe_requisicao' requisicao.pk %}" class="btn btn-info btn-sm">Detalhes</a>
                         <a href="{% url 'requisicoes:edita_requisicao' requisicao.pk %}" class="btn btn-warning btn-sm">Editar</a>
                         <a href="{% url 'requisicoes:exclui_requisicao' requisicao.pk %}" class="btn btn-danger btn-sm">Excluir</a>
                     </td>
