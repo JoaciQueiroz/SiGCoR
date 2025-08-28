@@ -38,16 +38,58 @@
                             <label for="{{ form.status.id_for_label }}" class="form-label">{{ form.status.label }}</label>
                             {{ form.status }}
                         </div>
-                                                
                     </div>
-
                     {% if form.errors %}
                         <div class="alert alert-danger mt-3">
                             <strong>Por favor, corrija os erros abaixo:</strong>
-                            </div>
+                        </div>
                     {% endif %}
-                    <hr>
                     
+                    {% if object %}
+                        <hr>
+                        <h4 class="mt-4">Itens da Requisição</h4>
+
+                        {% if formset.non_form_errors %}
+                            <div class="alert alert-danger">
+                                {{ formset.non_form_errors }}
+                            </div>
+                        {% endif %}
+
+                        {{ formset.management_form }} 
+
+                        {% if object.tipo == 'MATERIAL' %}
+                            <div id="material-forms-container">
+                                {% for item_form in formset %}
+                                    <div class="row item-form g-3 mb-3 border p-3 rounded">
+                                        {{ item_form.id }}
+                                        <div class="col-md-8">{{ item_form.produto.label_tag }} {{ item_form.produto }}</div>
+                                        <div class="col-md-4">{{ item_form.quantidade_solicitada.label_tag }} {{ item_form.quantidade_solicitada }}</div>
+                                        {% if item_form.instance.pk %}
+                                            <div class="col-12">{{ item_form.DELETE }} <label for="{{ item_form.DELETE.id_for_label }}">Marcar para excluir</label></div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        {# CORREÇÃO 1: Transformei o segundo 'if' em 'elif' #}
+                        {% elif object.tipo == 'SERVICO' %}
+                            <div id="servico-forms-container">
+                                {% for item_form in formset %}
+                                    <div class="row item-form g-3 mb-3 border p-3 rounded">
+                                        {{ item_form.id }}
+                                        <div class="col-md-8">{{ item_form.descricao.label_tag }} {{ item_form.descricao }}</div>
+                                        <div class="col-md-4">{{ item_form.valor.label_tag }} {{ item_form.valor }}</div>
+                                        {% if item_form.instance.pk %}
+                                            <div class="col-12">{{ item_form.DELETE }} <label for="{{ item_form.DELETE.id_for_label }}">Marcar para excluir</label></div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% endif %} {# CORREÇÃO 2: Este 'endif' fecha o {% if object %} principal #}
+                    
+                    <hr>
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a href="{% url 'requisicoes:lista_requisicoes' %}" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-success">Salvar</button>
