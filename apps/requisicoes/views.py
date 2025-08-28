@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.forms import inlineformset_factory
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Requisicao, ItemRequisicaoMaterial, ItemRequisicaoServico
 from .forms import RequisicaoForm, ItemRequisicaoMaterialForm, ItemRequisicaoServicoForm
@@ -24,19 +25,24 @@ ServicoFormSet = inlineformset_factory(
 )
 
 
-class RequisicaoListView(ListView):
+class RequisicaoListView(LoginRequiredMixin, ListView):
     model = Requisicao
     template_name = 'requisicoes/lista_requisicoes.html'
     context_object_name = 'requisicoes'
     ordering = ['-data_solicitacao'] # Mostra as mais recentes primeiro
 
-class RequisicaoCreateView(CreateView):
+class RequisicaoCreateView(LoginRequiredMixin, CreateView):
     model = Requisicao
     form_class = RequisicaoForm
     template_name = 'requisicoes/form_requisicao.html'
     success_url = reverse_lazy('requisicoes:lista_requisicoes')
+    
+    def form_valid(self, form):
+        form.instance.solicitante = self.request.user
+        return super().form_valid(form)
 
-class RequisicaoUpdateView(UpdateView):
+
+class RequisicaoUpdateView(LoginRequiredMixin, UpdateView):
     model = Requisicao
     form_class = RequisicaoForm
     template_name = 'requisicoes/form_requisicao.html'
@@ -70,12 +76,12 @@ class RequisicaoUpdateView(UpdateView):
             # Se o formset for inválido, precisamos re-renderizar a página com os erros
             return self.render_to_response(self.get_context_data(form=form))
 
-class RequisicaoDeleteView(DeleteView):
+class RequisicaoDeleteView(LoginRequiredMixin, DeleteView):
     model = Requisicao
     template_name = 'requisicoes/confirma_exclusao.html'
     success_url = reverse_lazy('requisicoes:lista_requisicoes')
 
-class RequisicaoDetailView(DetailView):
+class RequisicaoDetailView(LoginRequiredMixin, DetailView):
     model = Requisicao
     template_name = 'requisicoes/detalhe_requisicao.html'
     context_object_name = 'requisicao'

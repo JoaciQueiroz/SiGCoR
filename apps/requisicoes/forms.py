@@ -6,12 +6,11 @@ class RequisicaoForm(forms.ModelForm):
         model = Requisicao
         # Campos do "cabeçalho" da requisição
         fields = [
-            'solicitante', 
             'setor_solicitante', 
             'tipo', 
-            'justificativa'
-            
+            'justificativa'            
         ]
+        
         # Widgets para estilizar os campos com Bootstrap
         widgets = {
             'solicitante': forms.Select(attrs={'class': 'form-select'}),

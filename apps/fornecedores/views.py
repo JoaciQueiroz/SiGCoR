@@ -6,18 +6,19 @@ from django.views.generic import (
     UpdateView,
     DeleteView
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Fornecedor
 from .forms import FornecedorForm # Vamos precisar criar este arquivo em breve
 
 # Esta view você já tem
-class FornecedorListView(ListView):
+class FornecedorListView(LoginRequiredMixin, ListView):
     model = Fornecedor
     template_name = 'fornecedores/lista_fornecedores.html'
     context_object_name = 'fornecedores'
 
 # --- ADICIONE AS VIEWS ABAIXO ---
 
-class FornecedorCreateView(CreateView):
+class FornecedorCreateView(LoginRequiredMixin, CreateView):
     """
     View para criar um novo fornecedor.
     Utiliza o formulário FornecedorForm e, em caso de sucesso,
@@ -28,7 +29,7 @@ class FornecedorCreateView(CreateView):
     template_name = 'fornecedores/form_fornecedor.html'
     success_url = reverse_lazy('fornecedores:lista_fornecedores')
 
-class FornecedorUpdateView(UpdateView):
+class FornecedorUpdateView(LoginRequiredMixin, UpdateView):
     """
     View para editar um fornecedor existente.
     Reutiliza o mesmo formulário e template da criação.
@@ -38,7 +39,7 @@ class FornecedorUpdateView(UpdateView):
     template_name = 'fornecedores/form_fornecedor.html'
     success_url = reverse_lazy('fornecedores:lista_fornecedores')
 
-class FornecedorDeleteView(DeleteView):
+class FornecedorDeleteView(LoginRequiredMixin, DeleteView):
     """
     View para excluir um fornecedor.
     Mostra uma página de confirmação antes de apagar o objeto do banco.

@@ -1,0 +1,40 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Acesso ao Sistema{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white text-center">
+                <h3>SigCoR - Acesso Restrito</h3>
+            </div>
+            <div class="card-body">
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Seu nome de usuário e senha não correspondem. Tente novamente.
+                    </div>
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Usuário</label>
+                        <input type="text" name="username" class="form-control" required id="{{ form.username.id_for_label }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">Senha</label>
+                        <input type="password" name="password" class="form-control" required id="{{ form.password.id_for_label }}">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

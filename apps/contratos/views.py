@@ -8,6 +8,7 @@ from django.views.generic import(
     DetailView
 )
 from django.forms import inlineformset_factory
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Contrato, ItemContrato
 from .forms import ContratoForm, ItemContratoForm
@@ -26,13 +27,13 @@ ItemContratoFormSet = inlineformset_factory(
 )
 
 # listar contratos
-class ContratoListView(ListView):
+class ContratoListView(LoginRequiredMixin, ListView):
     model = Contrato
     template_name = 'contratos/lista_contratos.html'
     context_object_name = 'setores'
 
 # criar contratos
-class ContratoCreateView(CreateView):
+class ContratoCreateView(LoginRequiredMixin, CreateView):
     model = Contrato
     form_class = ContratoForm
     template_name = 'contratos/form_contrato.html'
@@ -69,7 +70,7 @@ class ContratoCreateView(CreateView):
             return self.form_invalid(form)
 
 # atualizar contratos
-class ContratoUpdateView(UpdateView):
+class ContratoUpdateView(LoginRequiredMixin, UpdateView):
     model = Contrato
     form_class = ContratoForm
     template_name = 'contratos/form_contrato.html'
@@ -101,13 +102,13 @@ class ContratoUpdateView(UpdateView):
     
     
 # listadeletar contratos
-class ContratoDeleteView(DeleteView):
+class ContratoDeleteView(LoginRequiredMixin, DeleteView):
     model = Contrato
     template_name = 'contratos/confirma_exclusao.html'
     success_url = reverse_lazy('contratos:lista_contratos')
 
 # view de detalhe do contrato
-class ContratoDetailView(DetailView):
+class ContratoDetailView(LoginRequiredMixin, DetailView):
     model = Contrato
     template_name = 'contratos/detalhe_contrato.html'
     context_object_name = 'contrato'

@@ -10,64 +10,66 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-        <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        
+        <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">SigCoR</a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
             
-            <a class="navbar-brand fw-bold" href="{% url 'core:home' %}">SigCoR</a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                
-                {% if user.is_authenticated %}
-                    <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'contratos:lista_contratos' %}">Contratos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'requisicoes:lista_requisicoes' %}">Requisições</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                              Cadastros
-                            </a>
-                            <ul class="dropdown-menu">
-                              <li><a class="dropdown-item" href="{% url 'fornecedores:lista_fornecedores' %}">Fornecedores</a></li>
-                              <li><a class="dropdown-item" href="{% url 'servidores:lista_setores' %}">Setores</a></li>
-                              <li><a class="dropdown-item" href="{% url 'estoque:lista_produtos' %}">Produtos</a></li>
-                              <li><hr class="dropdown-divider"></li>
-                              <li><a class="dropdown-item" href="{% url 'licitacoes:lista_modalidades' %}">Modalidades</a></li>
-                              <li><a class="dropdown-item" href="{% url 'licitacoes:lista_licitacoes' %}">Licitações</a></li>
-                            </ul>
-                        </li>
-                    </ul>
+            {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contratos:lista_contratos' %}">Contratos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'requisicoes:lista_requisicoes' %}">Requisições</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Cadastros
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'fornecedores:lista_fornecedores' %}">Fornecedores</a></li>
+                            <li><a class="dropdown-item" href="{% url 'servidores:lista_setores' %}">Setores</a></li>
+                            <li><a class="dropdown-item" href="{% url 'estoque:lista_produtos' %}">Produtos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'licitacoes:lista_modalidades' %}">Modalidades</a></li>
+                            <li><a class="dropdown-item" href="{% url 'licitacoes:lista_licitacoes' %}">Licitações</a></li>
+                        </ul>
+                    </li>
+                </ul>
 
+                <div class="d-flex align-items-center">
                     <span class="navbar-text me-3">
-                        Olá, {{ user.get_full_name|default:user.username }}!
+                        Olá, {{ user.get_full_name|default:user.username }}
                     </span>
-                    <form action="#" method="post" class="d-inline">
+                    <form action="{% url 'core:logout' %}" method="post" class="d-inline">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light btn-sm">Encerrar Sessão</button>
+                        <button type="submit" class="btn btn-outline-light">Sair</button>
                     </form>
-                    
-                {% else %}
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="#" class="btn btn-outline-light btn-sm">Entrar</a>
-                        </li>
-                    </ul>
-                {% endif %}
+                </div>
                 
-            </div>
+            {% else %}
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="{% url 'core:login' %}" class="btn btn-outline-light">Entrar</a>
+                    </li>
+                </ul>
+            {% endif %}
+            
         </div>
-    </nav>
-    <main class="container mt-4">
-        {% block content %}
-        {% endblock content %}
-    </main>
+    </div>
+</nav>
+<main class="container mt-4">
+    {% block content %}
+    {% endblock content %}
+</main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>
