@@ -1,10 +1,12 @@
 # apps/contratos/models.py
 
 from django.db import models
+from django.db.models import Sum
 from sigcor.settings import AUTH_USER_MODEL # Importa o modelo de usuário customizado
 from apps.fornecedores.models import Fornecedor
 from apps.licitacoes.models import Licitacao
 from apps.estoque.models import Produto
+from django.urls import reverse
 
 class Contrato(models.Model):
     STATUS_CHOICES = (
@@ -20,7 +22,7 @@ class Contrato(models.Model):
     )
     fornecedor = models.ForeignKey(Fornecedor, 
         on_delete=models.PROTECT, 
-        related_name="contratos")
+        related_name="contratos_fornecedores")
     fiscal = models.ForeignKey(
         AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -35,6 +37,15 @@ class Contrato(models.Model):
     data_assinatura = models.DateField(verbose_name="Data de Assinatura")
     data_vigencia_fim = models.DateField(verbose_name="Fim da Vigência")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='VIGENTE')
+    
+    @property
+    def valor_total_pago(self):
+        soma = self.pagamentos.aggregate(total=Sum('valor'))['total']
+        return soma if soma is not None else 0
+    
+    @property
+    def saldo_a_pagar(self):
+        return self.valor_global - self.valor_total_pago
 
     class Meta:
         verbose_name = "Contrato"
@@ -44,7 +55,10 @@ class Contrato(models.Model):
 
     def __str__(self):
         return f"Contrato {self.numero_contrato}/{self.ano_contrato}"
-
+    
+    def get_absolute_url(self):
+        return reverse('contratos:detalhe_contrato', kwargs={'pk': self.pk})
+    
 class ItemContrato(models.Model):
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, related_name="itens")
     produto_catalogo = models.ForeignKey(
@@ -68,7 +82,8 @@ class ItemContrato(models.Model):
 class Pagamento(models.Model):
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, related_name="pagamentos")
     data_pagamento = models.DateField(verbose_name="Data do Pagamento")
-    valor_pago = models.DecimalField(max_digits=12, decimal_places=2)
+    valor = models.DecimalField(max_digits=12, decimal_places=2) 
+    observacao = models.TextField(verbose_name="Observação", blank=True, null=True)
 
     class Meta:
         verbose_name = "Pagamento"
@@ -76,7 +91,8 @@ class Pagamento(models.Model):
         ordering = ['-data_pagamento']
 
     def __str__(self):
-        return f"Pagamento de R$ {self.valor_pago} em {self.data_pagamento}"
+        # Ajustado para usar o novo nome do campo 'valor'
+        return f"Pagamento de R$ {self.valor} em {self.data_pagamento.strftime('%d/%m/%Y')}"
 
 class Recebimento(models.Model):
     item_contrato = models.ForeignKey(ItemContrato, on_delete=models.PROTECT, related_name="recebimentos")
@@ -102,3 +118,4 @@ class Documento(models.Model):
 
     def __str__(self):
         return self.descricao
+

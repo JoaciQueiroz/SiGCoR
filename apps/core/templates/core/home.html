@@ -1,40 +1,68 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Página Inicial - SigCoR{% endblock title %}
+{% block title %}Dashboard - SigCoR{% endblock title %}
 
 {% block content %}
-<div class="container-fluid py-5 text-center text-white bg-primary rounded-3 shadow">
-    <div class="py-5">
-        <h1 class="display-4 fw-bold">Bem-vindo ao SigCoR!</h1>
-        <p class="fs-4 col-md-8 mx-auto">Sistema de Gestão de Contratos e Requisições. Utilize o menu de navegação para acessar as funcionalidades.</p>
-    </div>
-</div>
+<div class="container-fluid">
+    <h2 class="mb-4">Dashboard</h2>
+    
+    <div class="row">
 
-<div class="row text-center mt-5 g-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Gerenciar Contratos</h5>
-                <p class="card-text">Consulte, edite e acompanhe a execução física e financeira dos contratos vigentes.</p>
-                <a href="#" class="btn btn-primary">Ver Lista de Contratos</a>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Situação dos Contratos</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Vigentes
+                            <span class="badge bg-success rounded-pill fs-6">{{ contratos_vigentes }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Suspensos
+                            <span class="badge bg-warning text-dark rounded-pill fs-6">{{ contratos_suspensos }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Encerrados
+                            <span class="badge bg-secondary rounded-pill fs-6">{{ contratos_encerrados }}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{% url 'contratos:lista_contratos' %}" class="btn btn-primary btn-sm">Ver Todos os Contratos</a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Gerenciar Requisições</h5>
-                <p class="card-text">Crie novas requisições de materiais ou serviços e acompanhe o status de aprovação.</p>
-                <a href="#" class="btn btn-primary">Ver Minhas Requisições</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <h5 class="card-title">Cadastros Gerais</h5>
-                <p class="card-text">Acesse os cadastros de fornecedores, produtos, servidores e outros dados do sistema.</p>
-                <a href="{% url 'fornecedores:lista_fornecedores' %}" class="btn btn-info text-white">Acessar Cadastros</a>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Situação das Requisições</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Abertas
+                            <span class="badge bg-warning text-dark rounded-pill fs-6">{{ requisicoes_abertas }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Aprovadas
+                            <span class="badge bg-info text-dark rounded-pill fs-6">{{ requisicoes_aprovadas }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Reprovadas
+                            <span class="badge bg-success rounded-pill fs-6">{{ requisicoes_reprovadas }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Atendidas
+                            <span class="badge bg-danger rounded-pill fs-6">{{ requisicoes_atendidas }}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{% url 'requisicoes:lista_requisicoes' %}" class="btn btn-dark btn-sm">Ver Todas as Requisições</a>
+                </div>
             </div>
         </div>
     </div>

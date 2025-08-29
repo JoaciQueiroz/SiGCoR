@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import(
     ListView,
@@ -7,23 +7,32 @@ from django.views.generic import(
     DeleteView,
     DetailView
 )
-from django.forms import inlineformset_factory
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import Contrato, ItemContrato
-from .forms import ContratoForm, ItemContratoForm
+from django.forms import inlineformset_factory
+from .models import Contrato, ItemContrato, Pagamento
+from .forms import ContratoForm, ItemContratoForm, PagamentoForm
 
 # Definido o Formset, para gerar a fabrica de formulários
 # ligado a um Contrato. 'extra=1' = significa que ele mostrara 1 formulário
 # em branco por padrão
 
-# definindo o Formset
+# definindo o Formset(define a fabrica de item do contrato)
 ItemContratoFormSet = inlineformset_factory(
     Contrato,
     ItemContrato,
     form=ItemContratoForm,
     extra=1,
     can_delete=True
+)
+
+# define a fabrica de pagamento
+PagamentoFormSet = inlineformset_factory(
+    Contrato,
+    Pagamento,
+    form=PagamentoForm,
+    extra=1,
+    can_delete=False
 )
 
 # listar contratos
@@ -48,26 +57,15 @@ class ContratoCreateView(LoginRequiredMixin, CreateView):
         return context
     
     def form_valid(self, form):
-        # Pega o contexto, incluindo o formset populado com os dados do POST
         context = self.get_context_data()
         formset = context['formset']
-        
-        # Valida tanto o formulário principal quanto o formset
         if form.is_valid() and formset.is_valid():
-            # Salva o Contrato (o "pai") primeiro. Isso cria um ID para ele.
             self.object = form.save()
-            
-            # Associa o formset ao Contrato recém-criado
             formset.instance = self.object
-            
-            # Salva os Itens (os "filhos")
             formset.save()
-            
-            # Redireciona para a success_url
             return super().form_valid(form)
         else:
-            # Se um dos dois for inválido, re-renderiza a página com os erros
-            return self.form_invalid(form)
+            return self.render_to_response(self.get_context_data(form=form))
 
 # atualizar contratos
 class ContratoUpdateView(LoginRequiredMixin, UpdateView):
@@ -88,17 +86,13 @@ class ContratoUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context['formset']
-        
         if form.is_valid() and formset.is_valid():
-            # Na atualização, o form.save() já atualiza o Contrato existente.
             self.object = form.save()
-            
-            # O formset já está associado (instance=self.object), então só precisamos salvá-lo.
+            formset.instance = self.object
             formset.save()
-            
             return super().form_valid(form)
         else:
-            return self.form_invalid(form)
+            return self.render_to_response(self.get_context_data(form=form))
     
     
 # listadeletar contratos
@@ -106,6 +100,7 @@ class ContratoDeleteView(LoginRequiredMixin, DeleteView):
     model = Contrato
     template_name = 'contratos/confirma_exclusao.html'
     success_url = reverse_lazy('contratos:lista_contratos')
+    
 
 # view de detalhe do contrato
 class ContratoDetailView(LoginRequiredMixin, DetailView):
@@ -116,11 +111,31 @@ class ContratoDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         #esta função permite adicionar mais informações para enviar ao template
         context = super().get_context_data(**kwargs)
-        itens = self.object.itens.all()
-        context['itens_contrato']=itens
-        return context
+        #itens = self.object.itens.all()
+        context['itens_contrato']= self.object.itens.all()
         
+        if 'formset' not in context:
+            context['formset'] = PagamentoFormSet(instance=self.object)
+        return context
     
-    
+    def post(self, request, *args, **kwargs):
+        """
+        Este método é chamado quando o formulário de pagamento é enviado.
+        """
+        self.object = self.get_object() # Pega o contrato atual
+        formset = PagamentoFormSet(request.POST, instance=self.object)
+
+        if formset.is_valid():
+            formset.save()
+            # Redireciona de volta para a mesma página de detalhes
+            return redirect(self.object.get_absolute_url()) 
+        else:
+            # Se o formset for inválido, re-renderiza a página com os erros
+            context = self.get_context_data()
+            context['formset'] = formset # Envia o formset com os erros
+            return self.render_to_response(context)      
+
+
+
 
 # Create your views here.

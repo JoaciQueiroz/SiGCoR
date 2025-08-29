@@ -142,3 +142,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Adicione esta linha que direciona para a "Raiz" do site.
 LOGIN_REDIRECT_URL = '/'
+
+# Adcionando a página de login (adicione esta linha)
+LOGIN_URL = 'core:login'

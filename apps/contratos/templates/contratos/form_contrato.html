@@ -75,6 +75,7 @@
                     {{ formset.management_form }} <div id="item-forms-container">
                         {% for item_form in formset %}
                             <div class="row item-form g-3 mb-3 border p-3 rounded">
+                                {{item_form.id}}
                                 <div class="col-md-4">{{ item_form.produto_catalogo.label_tag }} {{ item_form.produto_catalogo }}</div>
                                 <div class="col-md-8">{{ item_form.descricao.label_tag }} {{ item_form.descricao }}</div>
                                 <div class="col-md-6">{{ item_form.quantidade.label_tag }} {{ item_form.quantidade }}</div>
