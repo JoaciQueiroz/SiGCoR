@@ -1,13 +1,14 @@
 # apps/contratos/models.py
-
+from sigcor.settings import AUTH_USER_MODEL # Importa o modelo de usuário customizado
 from django.db import models
 from django.db.models import Sum
-from sigcor.settings import AUTH_USER_MODEL # Importa o modelo de usuário customizado
+from django.core.exceptions import ValidationError
 from apps.fornecedores.models import Fornecedor
 from apps.licitacoes.models import Licitacao
 from apps.estoque.models import Produto
 from django.urls import reverse
 
+# ======== ====== classe contrato ======= ==========
 class Contrato(models.Model):
     STATUS_CHOICES = (
         ('VIGENTE', 'Vigente'),
@@ -58,7 +59,7 @@ class Contrato(models.Model):
     
     def get_absolute_url(self):
         return reverse('contratos:detalhe_contrato', kwargs={'pk': self.pk})
-    
+# ======== ====== classe item do contrato ======= ==========    
 class ItemContrato(models.Model):
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, related_name="itens")
     produto_catalogo = models.ForeignKey(
@@ -79,12 +80,37 @@ class ItemContrato(models.Model):
     def __str__(self):
         return self.descricao
 
+# ======== ====== classe pagamento ======= ==========
 class Pagamento(models.Model):
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, related_name="pagamentos")
     data_pagamento = models.DateField(verbose_name="Data do Pagamento")
     valor = models.DecimalField(max_digits=12, decimal_places=2) 
     observacao = models.TextField(verbose_name="Observação", blank=True, null=True)
+    # === início da validação ao salvar ========
+    def save(self, *args, **kwargs):
+            """
+            Sobrescreve o método save para incluir nossa regra de negócio.
+            """      
+            saldo_contrato = self.contrato.saldo_a_pagar
+        
+        # LÓGICA INTELIGENTE: Verifica se é um pagamento novo ou uma edição
+            if self.pk:  # Se self.pk existe, estamos EDITANDO um pagamento existente.
+            # Para calcular o saldo corretamente, precisamos "devolver" o valor antigo deste pagamento ao saldo.
+                valor_antigo = Pagamento.objects.get(pk=self.pk).valor
+                saldo_contrato += valor_antigo
 
+        # A VALIDAÇÃO: O valor deste pagamento pode ser maior que o saldo restante?
+            if self.valor > saldo_contrato:
+            # Se for, impede o salvamento e lança um erro de validação claro.
+                raise ValidationError(
+                f"O valor do pagamento (R$ {self.valor}) excede o saldo a pagar do contrato (R$ {saldo_contrato})."
+            )
+        
+        # Se a validação passar, executa o processo de salvamento normal.
+            super().save(*args, **kwargs)
+    
+    # === fim da validação ao salvar ========  
+    
     class Meta:
         verbose_name = "Pagamento"
         verbose_name_plural = "Pagamentos"
@@ -94,6 +120,7 @@ class Pagamento(models.Model):
         # Ajustado para usar o novo nome do campo 'valor'
         return f"Pagamento de R$ {self.valor} em {self.data_pagamento.strftime('%d/%m/%Y')}"
 
+# ======== ====== class Recebimento ======= ==========
 class Recebimento(models.Model):
     item_contrato = models.ForeignKey(ItemContrato, on_delete=models.PROTECT, related_name="recebimentos")
     quantidade_recebida = models.DecimalField(max_digits=10, decimal_places=2)
@@ -107,6 +134,7 @@ class Recebimento(models.Model):
     def __str__(self):
         return f"{self.quantidade_recebida}x {self.item_contrato.descricao}"
 
+# ======== ====== classe documento ======= ==========
 class Documento(models.Model):
     contrato = models.ForeignKey(Contrato, on_delete=models.CASCADE, related_name="documentos")
     descricao = models.CharField(max_length=100)

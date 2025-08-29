@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views.generic import(
@@ -7,7 +9,6 @@ from django.views.generic import(
     DeleteView,
     DetailView
 )
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.forms import inlineformset_factory
 from .models import Contrato, ItemContrato, Pagamento
@@ -17,7 +18,7 @@ from .forms import ContratoForm, ItemContratoForm, PagamentoForm
 # ligado a um Contrato. 'extra=1' = significa que ele mostrara 1 formulário
 # em branco por padrão
 
-# definindo o Formset(define a fabrica de item do contrato)
+# definindo o Formset(define a fabrica de item do contrato) ==
 ItemContratoFormSet = inlineformset_factory(
     Contrato,
     ItemContrato,
@@ -26,7 +27,7 @@ ItemContratoFormSet = inlineformset_factory(
     can_delete=True
 )
 
-# define a fabrica de pagamento
+# define a fabrica de pagamento ========================
 PagamentoFormSet = inlineformset_factory(
     Contrato,
     Pagamento,
@@ -35,13 +36,13 @@ PagamentoFormSet = inlineformset_factory(
     can_delete=False
 )
 
-# listar contratos
+# listar contratos ======================================
 class ContratoListView(LoginRequiredMixin, ListView):
     model = Contrato
     template_name = 'contratos/lista_contratos.html'
     context_object_name = 'setores'
 
-# criar contratos
+# criar contratos =======================================
 class ContratoCreateView(LoginRequiredMixin, CreateView):
     model = Contrato
     form_class = ContratoForm
@@ -67,7 +68,7 @@ class ContratoCreateView(LoginRequiredMixin, CreateView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-# atualizar contratos
+# atualizar contratos =========================================
 class ContratoUpdateView(LoginRequiredMixin, UpdateView):
     model = Contrato
     form_class = ContratoForm
@@ -82,7 +83,7 @@ class ContratoUpdateView(LoginRequiredMixin, UpdateView):
             context['formset'] = ItemContratoFormSet(instance=self.object)
         return context
     
-    # CORREÇÃO PRINCIPAL: O método deve se chamar form_valid
+    # CORREÇÃO PRINCIPAL: O método deve se chamar form_valid ==
     def form_valid(self, form):
         context = self.get_context_data()
         formset = context['formset']
@@ -95,14 +96,14 @@ class ContratoUpdateView(LoginRequiredMixin, UpdateView):
             return self.render_to_response(self.get_context_data(form=form))
     
     
-# listadeletar contratos
+# listadeletar contratos ===================================
 class ContratoDeleteView(LoginRequiredMixin, DeleteView):
     model = Contrato
     template_name = 'contratos/confirma_exclusao.html'
     success_url = reverse_lazy('contratos:lista_contratos')
     
 
-# view de detalhe do contrato
+# view de detalhe do contrato ===============================
 class ContratoDetailView(LoginRequiredMixin, DetailView):
     model = Contrato
     template_name = 'contratos/detalhe_contrato.html'
@@ -119,17 +120,19 @@ class ContratoDetailView(LoginRequiredMixin, DetailView):
         return context
     
     def post(self, request, *args, **kwargs):
-        """
-        Este método é chamado quando o formulário de pagamento é enviado.
-        """
         self.object = self.get_object() # Pega o contrato atual
         formset = PagamentoFormSet(request.POST, instance=self.object)
 
         if formset.is_valid():
-            formset.save()
-            # Redireciona de volta para a mesma página de detalhes
-            return redirect(self.object.get_absolute_url()) 
-        else:
+            # ============== INÍCIO DA CAPTURA DE ERRO ============= 
+            try:
+                formset.save()
+                return redirect(self.object.get_absolute_url())
+            except ValidationError as e:
+                # Se o model.save() lançar nosso erro, nós o capturamos.
+                # Adicionamos a mensagem de erro ao formset para exibição no template.
+                formset._non_form_errors = formset.error_class(e.messages)
+            # =============== FIM DA CAPTURA DE ERRO ===============
             # Se o formset for inválido, re-renderiza a página com os erros
             context = self.get_context_data()
             context['formset'] = formset # Envia o formset com os erros
