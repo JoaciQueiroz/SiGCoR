@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # --- ADICIONE ESTAS LINHAS ---
+    'crispy_forms',
+    'crispy_bootstrap5',
+    # -----------------------------
     # instalar meus apps
     'apps.core',
     'apps.servidores',
@@ -145,3 +149,7 @@ LOGIN_REDIRECT_URL = '/'
 
 # Adcionando a página de login (adicione esta linha)
 LOGIN_URL = 'core:login'
+
+# Configuração do Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

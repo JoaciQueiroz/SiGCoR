@@ -22,5 +22,11 @@ class ContratoAdmin(admin.ModelAdmin):
 
 @admin.register(Recebimento)
 class RecebimentoAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'item_contrato', 'data_recebimento')
-    search_fields = ('item_contrato__descricao',)
+   # list_display = ('__str__', 'item_pedido', 'data_recebimento')
+   # search_fields = ('item_contrato__descricao',)
+  list_display = ['id', 'get_produto_descricao', 'data_recebimento', 'quantidade_recebida']
+   # Isso ajuda a mostrar o nome real do item na tabela do admin
+  def get_produto_descricao(self, obj):
+      # Navega: Recebimento -> ItemPedido -> ItemContrato -> Descrição
+      return obj.item_pedido.item_contrato.descricao
+  get_produto_descricao.short_description = 'Produto'

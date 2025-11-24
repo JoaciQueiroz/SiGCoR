@@ -1,0 +1,45 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %} {# Se você estiver usando crispy forms #}
+
+{% block title %}Registrar Recebimento{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Registrar Recebimento para o Item do Pedido:</h3>
+                <p class="mb-0">
+                    Item: <strong>{{ item_pedido_entrega.item_contrato.descricao }}</strong><br>
+                    Pedido: <strong>{{ item_pedido_entrega.pedido_entrega.pk }}</strong> do Contrato {{ item_pedido_entrega.pedido_entrega.contrato }}
+                </p>
+            </div>
+            <div class="card-body">
+                <p>
+                    Solicitado neste pedido: <strong>{{ item_pedido_entrega.quantidade_solicitada|floatformat:2 }}</strong> |
+                    Já Recebido neste pedido: <strong>{{ item_pedido_entrega.total_recebido_deste_item_no_pedido|floatformat:2 }}</strong> |
+                    Saldo a Receber neste pedido: <strong class="text-success">{{ item_pedido_entrega.saldo_a_receber_do_pedido|floatformat:2 }}</strong>
+                </p>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+
+                    {# Erros globais do formulário #}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    {{ form|crispy }} {# ou {{ form.as_p }} se não usar crispy #}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-success">Salvar Recebimento</button>
+                        <a href="{% url 'contratos:detalhe_contrato' item_pedido_entrega.pedido_entrega.contrato.pk %}" class="btn btn-outline-secondary">Voltar aos Detalhes do Contrato</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

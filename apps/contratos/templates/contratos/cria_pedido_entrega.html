@@ -1,0 +1,147 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Criar Pedido de Entrega para Contrato {{ contrato.numero_contrato }}{% endblock title %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Criar Pedido de Entrega</h3>
+                <p class="mb-0">Contrato: {{ contrato }}</p>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {# Erros Gerais #}
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    {# Formulário Principal #}
+                    {{ form|crispy }}
+
+                    <h5 class="mt-4">Itens do Pedido de Entrega</h5>
+                    <hr>
+                    
+                    {# Erros do Formset #}
+                    {% if item_pedido_formset.non_form_errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ item_pedido_formset.non_form_errors }}
+                        </div>
+                    {% endif %}
+
+                    {# === IMPORTANTE: O Gerenciador do Formset === #}
+                    {{ item_pedido_formset.management_form }}
+
+                    <div id="formset-container">
+                        {% for form_item in item_pedido_formset %}
+                            {# Adicionei a classe 'formset-row' para o JS encontrar fácil #}
+                            <div class="formset-row card mb-2 p-3 bg-light border">
+                                
+                                {# Renderiza os campos hidden (como o ID) #}
+                                {% for hidden in form_item.hidden_fields %}
+                                    {{ hidden }}
+                                {% endfor %}
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        {{ form_item.item_contrato|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-4">
+                                        {{ form_item.quantidade_solicitada|as_crispy_field }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        {% if item_pedido_formset.can_delete %}
+                                            <div class="form-check mb-3">
+                                                {{ form_item.DELETE }}
+                                                <label class="form-check-label">Remover</label>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {# Erros específicos do item #}
+                                {% if form_item.errors %}
+                                    <div class="alert alert-warning mt-2 p-2">
+                                        {{ form_item.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button" class="btn btn-secondary btn-sm mt-3" id="add-form">
+                        <i class="bi bi-plus-circle"></i> Adicionar Item
+                    </button>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-success">Salvar Pedido de Entrega</button>
+                        <a href="{% url 'contratos:detalhe_contrato' contrato.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# === JAVASCRIPT CORRIGIDO PARA LER 'pedidos' E NÃO 'form' === #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addFormButton = document.getElementById('add-form');
+        const formsetContainer = document.getElementById('formset-container');
+        
+        // CORREÇÃO 1: Busca pelo ID correto gerado pelo prefix='pedidos'
+        const totalFormsInput = document.getElementById('id_pedidos-TOTAL_FORMS');
+
+        if (!totalFormsInput) {
+            console.error("ERRO: Não encontrei 'id_pedidos-TOTAL_FORMS'. Verifique se definiu prefix='pedidos' na View.");
+            return;
+        }
+
+        addFormButton.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Pega as linhas existentes
+            const forms = formsetContainer.getElementsByClassName('formset-row');
+            const currentFormCount = forms.length;
+            
+            // Clona a primeira linha
+            const newForm = forms[0].cloneNode(true);
+
+            // CORREÇÃO 2: Regex para substituir 'pedidos-0-' por 'pedidos-1-', etc.
+            // Isso é muito mais seguro que substituir string fixa
+            const regex = /pedidos-\d+-/g;
+            const newIndexStr = `pedidos-${currentFormCount}-`;
+
+            // Atualiza o HTML do clone
+            newForm.innerHTML = newForm.innerHTML.replace(regex, newIndexStr);
+
+            // Limpa os valores dos inputs
+            const inputs = newForm.querySelectorAll('input, select, textarea');
+            inputs.forEach(function(input) {
+                if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+                if (input.type === 'checkbox') {
+                    input.checked = false;
+                }
+            });
+
+            // Remove alertas de erro que vieram no clone
+            newForm.querySelectorAll('.alert').forEach(e => e.remove());
+
+            // Adiciona ao container visual
+            formsetContainer.appendChild(newForm);
+
+            // CORREÇÃO 3: Atualiza o input hidden que diz ao Django quantos itens tem
+            totalFormsInput.value = currentFormCount + 1;
+        });
+    });
+</script>
+
+{% endblock content %}
