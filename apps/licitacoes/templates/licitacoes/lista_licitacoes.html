@@ -19,6 +19,8 @@
                         <th scope="col">Modalidade</th>
                         <th scope="col">Objeto</th>
                         <th scope="col">Data de Abertura</th>
+                        <th scope="col">Data de Encerramento</th>
+                        <th scope="col">Valor Global</th>
                         <th scope="col" class="text-end">Ações</th>
                     </tr>
                 </thead>
@@ -29,6 +31,8 @@
                             <td>{{ licitacao.modalidade.nome }}</td> {# Acessando o relacionamento #}
                             <td>{{ licitacao.objeto|truncatewords:15 }}</td> {# Mostra só as primeiras 15 palavras #}
                             <td>{{ licitacao.data_abertura|date:"d/m/Y" }}</td>
+                            <td>{{ licitacao.data_fim|date:"d/m/Y" }}</td>
+                            <td>R$ {{ licitacao.valor_global|floatformat:2 }}</td>
                             <td class="text-end">
                                 <a href="{% url 'licitacoes:edita_licitacao' licitacao.pk %}" class="btn btn-warning btn-sm">Editar</a>
                                 <a href="{% url 'licitacoes:exclui_licitacao' licitacao.pk %}" class="btn btn-danger btn-sm">Excluir</a>

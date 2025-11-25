@@ -22,6 +22,21 @@ class Licitacao(models.Model):
     )
     objeto = models.TextField()
     data_abertura = models.DateField(verbose_name="Data de Abertura")
+    
+    # === NOVOS CAMPOS ===
+    data_fim = models.DateField(
+        verbose_name="Data de Encerramento", 
+        null=True, 
+        blank=True, 
+        help_text="Data prevista para o fim da licitação ou validade da ata."
+    )
+    
+    valor_global = models.DecimalField(
+        max_digits=15, 
+        decimal_places=2, 
+        verbose_name="Valor Global Estimado",
+        default=0.00
+    )
 
     class Meta:
         verbose_name = "Licitação"
